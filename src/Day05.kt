@@ -11,6 +11,11 @@ fun main() {
             .map { line -> line.split(" -> ") }
             .map { (start, end) -> readPoint(start) to readPoint(end) }
 
+    fun incrementCountAt(counts: MutableMap<Point, Int>, x: Int, y: Int) {
+        val key = Point(x, y)
+        counts[key] = (counts[key] ?: 0) + 1
+    }
+
     fun part1(input: List<String>): Int {
         val counts = mutableMapOf<Point, Int>()
         readLinesOfVents(input).forEach { (point1, point2) ->
@@ -19,14 +24,12 @@ fun main() {
             when {
                 x1 == x2 -> {
                     for (y in minOf(y1, y2)..maxOf(y1, y2)) {
-                        val key = Point(x1, y)
-                        counts[key] = (counts[key] ?: 0) + 1
+                        incrementCountAt(counts, x1, y)
                     }
                 }
                 y1 == y2 -> {
                     for (x in minOf(x1, x2)..maxOf(x1, x2)) {
-                        val key = Point(x, y1)
-                        counts[key] = (counts[key] ?: 0) + 1
+                        incrementCountAt(counts, x, y1)
                     }
                 }
             }
@@ -44,14 +47,12 @@ fun main() {
             when {
                 x1 == x2 -> {
                     for (y in minOf(y1, y2)..maxOf(y1, y2)) {
-                        val key = Point(x1, y)
-                        counts[key] = (counts[key] ?: 0) + 1
+                        incrementCountAt(counts, x1, y)
                     }
                 }
                 y1 == y2 -> {
                     for (x in minOf(x1, x2)..maxOf(x1, x2)) {
-                        val key = Point(x, y1)
-                        counts[key] = (counts[key] ?: 0) + 1
+                        incrementCountAt(counts, x, y1)
                     }
                 }
                 else -> {
@@ -60,8 +61,7 @@ fun main() {
                     val dx = if (x1 < x2) 1 else -1
                     val dy = if (y1 < y2) 1 else -1
                     while (x != x2 + dx && y != y2 + dy) {
-                        val key = Point(x, y)
-                        counts[key] = (counts[key] ?: 0) + 1
+                        incrementCountAt(counts, x, y)
                         x += dx
                         y += dy
                     }
