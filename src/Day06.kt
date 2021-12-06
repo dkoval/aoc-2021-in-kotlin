@@ -32,7 +32,7 @@ fun main() {
         }
 
         for (i in 1..dp.lastIndex) {
-            // on 7-th and 9-th day expect a generation of fishes
+            // on 7-th and 9-th days expect a new generation of fishes
             dp[i] += if (i > 7) dp[i - 7] else 0
             dp[i] += if (i > 9) dp[i - 9] else 0
         }
