@@ -1,9 +1,8 @@
 fun main() {
     fun part1(input: List<String>): Int {
-        val nums = input.first().split(",").map { it.toInt() }
+        val fishes = input.first().split(",").asSequence().map { it.toInt() }.toMutableList()
         val numDays = 80
 
-        val fishes = nums.toMutableList()
         repeat(numDays) {
             val size = fishes.size
             for (i in 0 until size) {
@@ -21,13 +20,13 @@ fun main() {
     }
 
     fun part2(input: List<String>): Long {
-        val nums = input.first().split(",").map { it.toInt() }
+        val fishes = input.first().split(",").map { it.toInt() }
         val numDays = 256
 
         // dp[i] denotes the number of fishes created on i-th day
         val dp = LongArray(numDays + 1)
-        dp[0] = nums.size.toLong()
-        for (x in nums) {
+        dp[0] = fishes.size.toLong()
+        for (x in fishes) {
             dp[x + 1]++
         }
 
