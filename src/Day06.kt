@@ -31,7 +31,9 @@ fun main() {
         }
 
         for (i in 1..dp.lastIndex) {
-            // on 7-th and 9-th days expect a new generation of fishes
+            // on 8-th (countdown timer 6, 5, ..., 1, 0 takes 7 days)
+            // and 10-th (countdown timer 8, 7, ..., 1, 0 takes 9 days)
+            // days expect a new generation of fishes
             dp[i] += if (i > 7) dp[i - 7] else 0
             dp[i] += if (i > 9) dp[i - 9] else 0
         }
