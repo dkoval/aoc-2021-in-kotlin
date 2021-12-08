@@ -30,19 +30,19 @@ fun main() {
                         digitToPattern[1] = p
                     }
                     3 -> {
-                        val normalizedPattern = sort(pattern)
-                        patternToDigit[normalizedPattern] = 7
-                        digitToPattern[7] = normalizedPattern
+                        val p = sort(pattern)
+                        patternToDigit[p] = 7
+                        digitToPattern[7] = p
                     }
                     4 -> {
-                        val normalizedPattern = sort(pattern)
-                        patternToDigit[normalizedPattern] = 4
-                        digitToPattern[4] = normalizedPattern
+                        val p = sort(pattern)
+                        patternToDigit[p] = 4
+                        digitToPattern[4] = p
                     }
                     7 -> {
-                        val normalizedPattern = sort(pattern)
-                        patternToDigit[normalizedPattern] = 8
-                        digitToPattern[8] = normalizedPattern
+                        val p = sort(pattern)
+                        patternToDigit[p] = 8
+                        digitToPattern[8] = p
                     }
                 }
             }
@@ -52,20 +52,20 @@ fun main() {
                 when (pattern.length) {
                     // pattern of length 5 can be either 2, 3 or 5
                     5 -> {
-                        val normalizedPattern = sort(pattern)
+                        val p = sort(pattern)
                         when {
-                            digitToPattern[7]!!.all { c -> c in normalizedPattern } -> patternToDigit[normalizedPattern] = 3
-                            digitToPattern[4]!!.count { c -> c in normalizedPattern } == 3 -> patternToDigit[normalizedPattern] = 5
-                            else -> patternToDigit[normalizedPattern] = 2
+                            digitToPattern[7]!!.all { c -> c in p } -> patternToDigit[p] = 3
+                            digitToPattern[4]!!.count { c -> c in p } == 3 -> patternToDigit[p] = 5
+                            else -> patternToDigit[p] = 2
                         }
                     }
                     // pattern of length 6 can be either 0, 6, 9
                     6 -> {
-                        val normalizedPattern = sort(pattern)
+                        val p = sort(pattern)
                         when {
-                            digitToPattern[4]!!.all { c -> c in normalizedPattern } -> patternToDigit[normalizedPattern] = 9
-                            digitToPattern[7]!!.all { c -> c in normalizedPattern } -> patternToDigit[normalizedPattern] = 0
-                            else -> patternToDigit[normalizedPattern] = 6
+                            digitToPattern[4]!!.all { c -> c in p } -> patternToDigit[p] = 9
+                            digitToPattern[7]!!.all { c -> c in p } -> patternToDigit[p] = 0
+                            else -> patternToDigit[p] = 6
                         }
                     }
                 }
