@@ -1,16 +1,21 @@
 import java.util.*
 
 fun main() {
-    fun part1(input: List<String>): Int {
-        val grid = mutableListOf<List<Int>>()
+    val directions = arrayOf(-1 to 0, 1 to 0, 0 to -1, 0 to 1)
+
+    fun readGrid(input: List<String>): MutableList<MutableList<Int>> {
+        val grid = mutableListOf<MutableList<Int>>()
         for (line in input) {
-            val heights = line.split("")
-            grid += heights.subList(1, heights.size - 1).map { it.toInt() }
+            grid += line.asSequence().map { it - '0' }.toMutableList()
         }
+        return grid
+    }
+
+    fun part1(input: List<String>): Int {
+        val grid = readGrid(input)
 
         val m = grid.size
         val n = grid[0].size
-        val directions = arrayOf(-1 to 0, 1 to 0, 0 to -1, 0 to 1)
         var sumOfRanks = 0
         for (row in 0 until m) {
             for (col in 0 until n) {
@@ -32,11 +37,10 @@ fun main() {
     }
 
     fun part2(input: List<String>): Int {
-        val directions = arrayOf(-1 to 0, 1 to 0, 0 to -1, 0 to 1)
-
         fun lowPoints(grid: List<List<Int>>): List<Pair<Int, Int>> {
             val m = grid.size
             val n = grid[0].size
+
             val lowPoints = mutableListOf<Pair<Int, Int>>()
             for (row in 0 until m) {
                 for (col in 0 until n) {
@@ -80,12 +84,7 @@ fun main() {
             return area
         }
 
-        val grid = mutableListOf<MutableList<Int>>()
-        for (line in input) {
-            val heights = line.split("")
-            grid += heights.subList(1, heights.size - 1).asSequence().map { it.toInt() }.toMutableList()
-        }
-
+        val grid = readGrid(input)
         // collect low points first
         val lowPoints = lowPoints(grid)
         // for each low point, run DFS to calculate a surrounding basin area; minHeap stores areas of the 3 largest basins
