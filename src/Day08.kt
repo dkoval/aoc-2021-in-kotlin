@@ -9,8 +9,6 @@ fun main() {
                 }
             }
         }
-
-        // answer = 397
         return count
     }
 
@@ -88,8 +86,6 @@ fun main() {
             }
             sum += x
         }
-
-        // answer = 1027422
         return sum
     }
 
@@ -97,6 +93,6 @@ fun main() {
     check(part2(readInput("Day08_test")) == 61229)
 
     val input = readInput("Day08")
-    println(part1(input))
-    println(part2(input))
+    println(part1(input)) // answer = 397
+    println(part2(input)) // answer = 1027422
 }

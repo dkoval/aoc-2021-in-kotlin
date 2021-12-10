@@ -34,8 +34,6 @@ fun main() {
                 }
             }
         }
-
-        // answer = 5306
         return counts.count { (_, count) -> count >= 2 }
     }
 
@@ -68,8 +66,6 @@ fun main() {
                 }
             }
         }
-
-        // answer = 17787
         return counts.count { (_, count) -> count >= 2 }
     }
 
@@ -77,6 +73,6 @@ fun main() {
     check(part2(readInput("Day05_test")) == 12)
 
     val input = readInput("Day05")
-    println(part1(input))
-    println(part2(input))
+    println(part1(input)) // answer = 5306
+    println(part2(input)) // answer = 17787
 }

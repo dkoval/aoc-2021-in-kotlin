@@ -9,8 +9,6 @@ fun main() {
                 fuel[i] += abs(positions[i] - positions[j])
             }
         }
-
-        // answer = 333755
         return fuel.minOf { it }
     }
 
@@ -28,8 +26,6 @@ fun main() {
                 fuel[i] += sumOf1ToN(steps)
             }
         }
-
-        // answer = 94017638
         return fuel.minOf { it }
     }
 
@@ -37,6 +33,6 @@ fun main() {
     check(part2(readInput("Day07_test")) == 168)
 
     val input = readInput("Day07")
-    println(part1(input))
-    println(part2(input))
+    println(part1(input)) // answer = 333755
+    println(part2(input)) // answer = 94017638
 }

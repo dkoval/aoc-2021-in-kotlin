@@ -14,8 +14,6 @@ fun main() {
                 }
             }
         }
-
-        // answer = 365862
         return fishes.size
     }
 
@@ -37,8 +35,6 @@ fun main() {
             dp[i] += if (i > 7) dp[i - 7] else 0
             dp[i] += if (i > 9) dp[i - 9] else 0
         }
-
-        // answer = 1653250886439
         return dp.sum()
     }
 
@@ -46,6 +42,6 @@ fun main() {
     check(part2(readInput("Day06_test")) == 26984457539)
 
     val input = readInput("Day06")
-    println(part1(input))
-    println(part2(input))
+    println(part1(input)) // answer = 365862
+    println(part2(input)) // answer = 1653250886439
 }

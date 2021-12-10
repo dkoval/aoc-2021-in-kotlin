@@ -24,8 +24,6 @@ fun main() {
             gammaRate = gammaRate or (mcb shl i)
             epsilonRate = epsilonRate or (lcb shl i)
         }
-
-        // answer = 2648450
         return gammaRate * epsilonRate
     }
 
@@ -52,12 +50,10 @@ fun main() {
 
         val oxygenGeneratorRating = rating(input) { numOnes, numZeros -> if (numOnes >= numZeros) 1 else 0 }
         val co2ScrubberRating = rating(input) { numOnes, numZeros -> if (numZeros <= numOnes) 0 else 1 }
-
-        // answer = 2845944
         return oxygenGeneratorRating * co2ScrubberRating
     }
 
     val input = readInput("Day03")
-    println(part1(input))
-    println(part2(input))
+    println(part1(input)) // answer = 2648450
+    println(part2(input)) // answer = 2845944
 }

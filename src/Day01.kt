@@ -7,7 +7,6 @@ fun main() {
                 count++
             }
         }
-        // answer = 1448
         return count
     }
 
@@ -23,11 +22,10 @@ fun main() {
             }
             prevSum = currSum
         }
-        // answer = 1471
         return count
     }
 
     val input = readInput("Day01")
-    println(part1(input))
-    println(part2(input))
+    println(part1(input)) // answer = 1448
+    println(part2(input)) // answer = 1471
 }

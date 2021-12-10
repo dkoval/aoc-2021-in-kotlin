@@ -31,8 +31,6 @@ fun main() {
                 }
             }
         }
-
-        // answer = 575
         return sumOfRanks
     }
 
@@ -96,8 +94,6 @@ fun main() {
                 minHeap.poll()
             }
         }
-
-        // answer = 1019700
         return minHeap.fold(1) { ans, x -> ans * x }
     }
 
@@ -105,6 +101,6 @@ fun main() {
     check(part2(readInput("Day09_test")) == 1134)
 
     val input = readInput("Day09")
-    println(part1(input))
-    println(part2(input))
+    println(part1(input)) // answer = 575
+    println(part2(input)) // answer = 1019700
 }

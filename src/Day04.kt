@@ -60,7 +60,6 @@ fun main() {
                 }
             }
         }
-        // answer = 65325
         return -1
     }
 
@@ -80,7 +79,6 @@ fun main() {
                 }
             }
         }
-        // answer = 4624
         return -1
     }
 
@@ -88,6 +86,6 @@ fun main() {
     check(part2(readInput("Day04_test")) == 1924)
 
     val input = readInput("Day04")
-    println(part1(input))
-    println(part2(input))
+    println(part1(input)) // answer = 65325
+    println(part2(input)) // answer = 4624
 }
