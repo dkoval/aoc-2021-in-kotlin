@@ -53,6 +53,9 @@ fun main() {
         return oxygenGeneratorRating * co2ScrubberRating
     }
 
+    check(part1(readInput("Day03_test")) == 198)
+    check(part2(readInput("Day03_test")) == 230)
+
     val input = readInput("Day03")
     println(part1(input)) // answer = 2648450
     println(part2(input)) // answer = 2845944

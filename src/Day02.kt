@@ -31,6 +31,9 @@ fun main() {
         return x * y
     }
 
+    check(part1(readInput("Day02_test")) == 150)
+    check(part2(readInput("Day02_test")) == 900)
+
     val input = readInput("Day02")
     println(part1(input)) // answer = 2091984
     println(part2(input)) // answer = 2086261056

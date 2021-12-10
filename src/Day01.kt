@@ -25,6 +25,9 @@ fun main() {
         return count
     }
 
+    check(part1(readInput("Day01_test")) == 7)
+    check(part2(readInput("Day01_test")) == 5)
+
     val input = readInput("Day01")
     println(part1(input)) // answer = 1448
     println(part2(input)) // answer = 1471
