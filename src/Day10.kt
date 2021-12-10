@@ -23,51 +23,17 @@ fun main() {
         }
 
         val closeToPoint = mapOf(')' to 3, ']' to 57, '}' to 1197, '>' to 25137)
-        var totalErrorScore = 0
+        var totalScore = 0
         for (line in input) {
-            findWrongClose(line)?.also { totalErrorScore += closeToPoint[it]!! }
+            findWrongClose(line)?.also { totalScore += closeToPoint[it]!! }
         }
-        return totalErrorScore
+        return totalScore
     }
 
     fun part2(input: List<String>): Long {
-        fun isCorruptedLine(line: String): Boolean {
-            val stack = Stack<Char>()
-            for (c in line) {
-                // open bracket
-                if (c in open) {
-                    stack.push(c)
-                } else {
-                    // close bracket
-                    if (stack.isEmpty() || closeToOpen[c] != stack.pop()) {
-                        return true
-                    }
-                }
-            }
-            return false
-        }
-
-        fun findIncompleteOpen(line: String): Stack<Char> {
-            val stack = Stack<Char>()
-            for (c in line) {
-                // open bracket
-                if (c in open) {
-                    stack.push(c)
-                } else {
-                    // close bracket
-                    if (!stack.isEmpty() && closeToOpen[c] == stack.peek()) {
-                        // pop only valid open brackets
-                        stack.pop()
-                    }
-                }
-            }
-            return stack
-        }
-
         val closeToPoint = mapOf(')' to 1, ']' to 2, '}' to 3, '>' to 4)
 
-        fun scoreIncompleteLine(line: String): Long {
-            val stack = findIncompleteOpen(line)
+        fun scoreIncompleteLine(stack: Stack<Char>): Long {
             var score = 0L
             while (!stack.isEmpty()) {
                 score *= 5
@@ -76,12 +42,26 @@ fun main() {
             return score
         }
 
+        fun scoreIfIncompleteLine(line: String): Long? {
+            val stack = Stack<Char>()
+            for (c in line) {
+                // open bracket
+                if (c in open) {
+                    stack.push(c)
+                } else {
+                    // close bracket
+                    if (stack.isEmpty() || closeToOpen[c] != stack.pop()) {
+                        // line is corrupted
+                        return null
+                    }
+                }
+            }
+            return scoreIncompleteLine(stack)
+        }
+
         val scores = mutableListOf<Long>()
         for (line in input) {
-            if (isCorruptedLine(line)) {
-                continue
-            }
-            scores += scoreIncompleteLine(line)
+            scoreIfIncompleteLine(line)?.also { scores += it }
         }
 
         scores.sort()
