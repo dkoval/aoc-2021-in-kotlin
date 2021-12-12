@@ -18,7 +18,7 @@ fun main() {
         target: String,
         visited: MutableSet<String>,
         currPath: MutableList<String>,
-        distinctPaths: MutableSet<List<String>>
+        distinctPaths: MutableList<List<String>>
     ) {
         if (u == target) {
             val copy = currPath.toMutableList()
@@ -51,7 +51,7 @@ fun main() {
 
     fun part1(input: List<String>): Int {
         val adj = adj(input)
-        val distinctPaths = mutableSetOf<List<String>>()
+        val distinctPaths = mutableListOf<List<String>>()
         dfs1(adj, start, end, mutableSetOf(), mutableListOf(), distinctPaths)
         return distinctPaths.size
     }
@@ -62,7 +62,7 @@ fun main() {
         target: String,
         visited: MutableMap<String, Int>,
         currPath: MutableList<String>,
-        distinctPaths: MutableSet<List<String>>
+        distinctPaths: MutableList<List<String>>
     ) {
         if (u == target) {
             val copy = currPath.toMutableList()
@@ -100,7 +100,7 @@ fun main() {
 
     fun part2(input: List<String>): Int {
         val adj = adj(input)
-        val distinctPaths = mutableSetOf<List<String>>()
+        val distinctPaths = mutableListOf<List<String>>()
         dfs2(adj, start, end, mutableMapOf(), mutableListOf(), distinctPaths)
         return distinctPaths.size
     }
