@@ -55,7 +55,7 @@ fun main() {
             adj: Map<String, List<String>>,
             u: String,
             target: String,
-            visited: MutableMap<String, Int>,
+            visited: MutableMap<String, Int>
         ): Int {
             if (u == target) {
                 return 1
