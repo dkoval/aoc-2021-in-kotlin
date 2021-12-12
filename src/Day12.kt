@@ -1,4 +1,7 @@
 fun main() {
+    val start = "start"
+    val end = "end"
+
     fun adj(input: List<String>): Map<String, List<String>> {
         val adj = mutableMapOf<String, MutableList<String>>()
         for (line in input) {
@@ -49,7 +52,7 @@ fun main() {
     fun part1(input: List<String>): Int {
         val adj = adj(input)
         val distinctPaths = mutableSetOf<List<String>>()
-        dfs1(adj, "start", "end", mutableSetOf(), mutableListOf(), distinctPaths)
+        dfs1(adj, start, end, mutableSetOf(), mutableListOf(), distinctPaths)
         return distinctPaths.size
     }
 
@@ -68,7 +71,7 @@ fun main() {
             return
         }
 
-        if (u in visited && (u == "start" || visited[u] == 2 || currPath.any { x -> visited[x] == 2 })) {
+        if (u in visited && (u == start || visited[u] == 2 || currPath.any { x -> visited[x] == 2 })) {
             return
         }
 
@@ -85,10 +88,11 @@ fun main() {
 
         // backtrack to find more paths
         if (u[0].isLowerCase()) {
-            if (visited[u] == 1) {
+            val count = visited[u]!!
+            if (count == 1) {
                 visited -= u
             } else {
-                visited[u] = visited[u]!! - 1
+                visited[u] = count - 1
             }
         }
         currPath.removeAt(currPath.lastIndex)
@@ -97,7 +101,7 @@ fun main() {
     fun part2(input: List<String>): Int {
         val adj = adj(input)
         val distinctPaths = mutableSetOf<List<String>>()
-        dfs2(adj, "start", "end", mutableMapOf(), mutableListOf(), distinctPaths)
+        dfs2(adj, start, end, mutableMapOf(), mutableListOf(), distinctPaths)
         return distinctPaths.size
     }
 
