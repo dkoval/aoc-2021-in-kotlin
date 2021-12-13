@@ -45,7 +45,7 @@ fun main() {
                 .forEach { (x, y) -> this.set(y, x) }
         }
 
-    fun readInstructions(lines: List<String>): List<Pair<Direction, Int>> {
+    fun readInstructions(lines: List<String>, limit: Int = Int.MAX_VALUE): List<Pair<Direction, Int>> {
         return lines.asSequence()
             .map { line -> line.removePrefix("fold along ").split("=") }
             .map { (direction, shift) ->
@@ -55,6 +55,7 @@ fun main() {
                     else -> error("Unsupported direction: $direction")
                 }
             }
+            .take(limit)
             .toList()
     }
 
@@ -87,7 +88,7 @@ fun main() {
 
         val newLine = input.indexOfFirst { it.isEmpty() }
         val grid = readGrid(input.subList(0, newLine))
-        val (direction, shift) = readInstructions(input.subList(newLine + 1, input.size)).first()
+        val (direction, shift) = readInstructions(input.subList(newLine + 1, input.size), limit = 1).first()
         return when (direction) {
             Direction.UP -> foldUp(grid, shift)
             Direction.LEFT -> foldLeft(grid, shift)
@@ -136,9 +137,11 @@ fun main() {
         grid.print(endRow, endCol)
     }
 
+    println("*** Tests ***")
     check(part1(readInput("Day13_test")) == 17)
     part2(readInput("Day13_test"))
 
+    println("*** Answers ***")
     val input = readInput("Day13")
     println(part1(input)) // answer = 731
     part2(input)          // answer = ZKAUCFUC
