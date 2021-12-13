@@ -98,11 +98,11 @@ fun main() {
     fun part2(input: List<String>) {
         fun foldUp(grid: Grid, y: Int, endRow: Int, endCol: Int): Int {
             val numDots = minOf(y, endRow - y)
-            for (offsetY in 0 until numDots) {
+            for (offset in 0 until numDots) {
                 for (col in 0..endCol) {
-                    if (grid.isSet(y + offsetY + 1, col)) {
-                        grid.unset(y + offsetY + 1, col)
-                        grid.set(y - offsetY - 1, col)
+                    if (grid.isSet(y + offset + 1, col)) {
+                        grid.unset(y + offset + 1, col)
+                        grid.set(y - offset - 1, col)
                     }
                 }
             }
@@ -112,10 +112,10 @@ fun main() {
         fun foldLeft(grid: Grid, x: Int, endRow: Int, endCol: Int): Int {
             val numDots = minOf(x, endCol - x)
             for (row in 0..endRow) {
-                for (offsetX in 0 until numDots) {
-                    if (grid.isSet(row, x + offsetX + 1)) {
-                        grid.unset(row, x + offsetX + 1)
-                        grid.set(row, x - offsetX - 1)
+                for (offset in 0 until numDots) {
+                    if (grid.isSet(row, x + offset + 1)) {
+                        grid.unset(row, x + offset + 1)
+                        grid.set(row, x - offset - 1)
                     }
                 }
             }
