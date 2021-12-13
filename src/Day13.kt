@@ -45,8 +45,8 @@ fun main() {
                 .forEach { (x, y) -> this.set(y, x) }
         }
 
-    fun readInstructions(lines: List<String>, limit: Int = Int.MAX_VALUE): List<Pair<Direction, Int>> {
-        return lines.asSequence()
+    fun readInstructions(lines: List<String>, limit: Int = Int.MAX_VALUE): List<Pair<Direction, Int>> =
+        lines.asSequence()
             .map { line -> line.removePrefix("fold along ").split("=") }
             .map { (direction, shift) ->
                 when (direction) {
@@ -57,7 +57,6 @@ fun main() {
             }
             .take(limit)
             .toList()
-    }
 
     fun part1(input: List<String>): Int {
         fun foldUp(grid: Grid, y: Int): Int {
