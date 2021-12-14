@@ -26,7 +26,7 @@ fun main() {
         val rules = readRules(input.subList(2, input.size))
 
         val head = ListNode.listOf(template)!!
-        val counts = template.groupingBy { it }.eachCount().toMutableMap()
+        val counts = template.groupingBy { it }.eachCountTo(mutableMapOf())
         repeat(10) {
             var curr = head
             while (curr.next != null) {
