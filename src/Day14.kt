@@ -57,7 +57,7 @@ fun main() {
             return counts
         }
 
-        fun pairsOf(s: String, validPairs: Map<String, Char>): MutableMap<String, Long> {
+        fun pairsOf(s: String, validPairs: Set<String>): MutableMap<String, Long> {
             val pairs = mutableMapOf<String, Long>()
             for (i in 0..s.length - 2) {
                 val pair = "${s[i]}${s[i + 1]}"
@@ -71,7 +71,7 @@ fun main() {
         val template = input.first()
         val rules = readRules(input.subList(2, input.size))
 
-        var pairs = pairsOf(template, rules)
+        var pairs = pairsOf(template, rules.keys)
         val counts = counts(template)
         repeat(40) {
             val newPairs = mutableMapOf<String, Long>()
