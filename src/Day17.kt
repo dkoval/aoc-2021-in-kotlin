@@ -67,9 +67,9 @@ fun main() {
         val target = readTargetArea(input)
 
         // start off with the highest Y possible
-        var yVelocity = abs(target.yRange.first)
+        val maxYVelocity = abs(target.yRange.first)
         // simulate probes
-        while (yVelocity >= target.yRange.first) {
+        for (yVelocity in maxYVelocity downTo target.yRange.first) {
             for (xVelocity in -100..101) {
                 // try to hit the target area
                 val (success, maxY) = hit(target, Position(point = Point(0, 0), velocity = Point(xVelocity, yVelocity)))
@@ -77,7 +77,6 @@ fun main() {
                     return maxY
                 }
             }
-            yVelocity--
         }
         return Int.MIN_VALUE
     }
@@ -86,10 +85,10 @@ fun main() {
         val target = readTargetArea(input)
 
         // start off with the highest Y possible
-        var yVelocity = abs(target.yRange.first)
+        val maxYVelocity = abs(target.yRange.first)
         // simulate probes and count successful ones
         var count = 0
-        while (yVelocity >= target.yRange.first) {
+        for (yVelocity in maxYVelocity downTo target.yRange.first) {
             for (xVelocity in -100..101) {
                 // try to hit the target area
                 val (success, _) = hit(target, Position(point = Point(0, 0), velocity = Point(xVelocity, yVelocity)))
@@ -97,7 +96,6 @@ fun main() {
                     count++
                 }
             }
-            yVelocity--
         }
         return count
     }
