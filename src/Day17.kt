@@ -50,8 +50,8 @@ fun main() {
             .toList()
             .let { (xRange, yRange) -> Area(xRange, yRange) }
 
-    fun hit(target: Area, initialVelocity: Point): Pair<Boolean, Int> {
-        var position = Position(point = Point(0, 0), velocity = initialVelocity)
+    fun hit(target: Area, initialPosition: Position): Pair<Boolean, Int> {
+        var position = initialPosition
         var maxY = 0
         while (position.onWayTo(target)) {
             maxY = maxOf(maxY, position.point.y)
@@ -72,9 +72,9 @@ fun main() {
         while (yVelocity >= target.yRange.first) {
             for (xVelocity in -100..101) {
                 // try to hit the target area
-                val (success, maxYVelocity) = hit(target, Point(xVelocity, yVelocity))
+                val (success, maxY) = hit(target, Position(point = Point(0, 0), velocity = Point(xVelocity, yVelocity)))
                 if (success) {
-                    return maxYVelocity
+                    return maxY
                 }
             }
             yVelocity--
@@ -92,7 +92,7 @@ fun main() {
         while (yVelocity >= target.yRange.first) {
             for (xVelocity in -100..101) {
                 // try to hit the target area
-                val (success, _) = hit(target, Point(xVelocity, yVelocity))
+                val (success, _) = hit(target, Position(point = Point(0, 0), velocity = Point(xVelocity, yVelocity)))
                 if (success) {
                     count++
                 }
