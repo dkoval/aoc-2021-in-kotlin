@@ -7,6 +7,33 @@ class Point(val x: Int, val y: Int) {
     fun within(target: Area): Boolean = x in target.xRange && y in target.yRange
 }
 
+class Position(val point: Point, val velocity: Point) {
+
+    fun onWayTo(target: Area): Boolean {
+        fun bad(): Boolean =
+            (velocity.x > 0 && point.x > target.xRange.last) ||
+                    (velocity.x < 0 && point.x < target.xRange.first) ||
+                    (velocity.y < 0 && point.y < target.yRange.first)
+
+        return !bad()
+    }
+
+    fun next(): Position = Position(
+        point = Point(
+            point.x + velocity.x,
+            point.y + velocity.y
+        ),
+        velocity = Point(
+            when {
+                velocity.x > 0 -> velocity.x - 1
+                velocity.x < 0 -> velocity.x + 1
+                else -> 0
+            },
+            velocity.y - 1
+        )
+    )
+}
+
 fun main() {
     fun readTargetArea(input: List<String>): Area =
         input.first()
@@ -24,38 +51,14 @@ fun main() {
             .let { (xRange, yRange) -> Area(xRange, yRange) }
 
     fun hit(target: Area, initialVelocity: Point): Pair<Boolean, Int> {
-        fun outside(position: Point, velocity: Point): Boolean =
-            (velocity.x > 0 && position.x > target.xRange.last) ||
-                    (velocity.x < 0 && position.x < target.xRange.first) ||
-                    (velocity.y < 0 && position.y < target.yRange.first)
-
-        fun move(position: Point, velocity: Point): Pair<Point, Point> {
-            val newPosition = Point(
-                position.x + velocity.x,
-                position.y + velocity.y
-            )
-            val newVelocity = Point(
-                when {
-                    velocity.x > 0 -> velocity.x - 1
-                    velocity.x < 0 -> velocity.x + 1
-                    else -> 0
-                },
-                velocity.y - 1
-            )
-            return newPosition to newVelocity
-        }
-
-        var position = Point(0, 0)
-        var velocity = initialVelocity
+        var position = Position(point = Point(0, 0), velocity = initialVelocity)
         var maxY = 0
-        while (!outside(position, velocity)) {
-            maxY = maxOf(maxY, position.y)
-            if (position.within(target)) {
+        while (position.onWayTo(target)) {
+            maxY = maxOf(maxY, position.point.y)
+            if (position.point.within(target)) {
                 return true to maxY
             }
-            val (newPosition, newVelocity) = move(position, velocity)
-            position = newPosition
-            velocity = newVelocity
+            position = position.next()
         }
         return false to Int.MIN_VALUE
     }
