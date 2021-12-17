@@ -10,12 +10,12 @@ class Point(val x: Int, val y: Int) {
 class Position(val point: Point, val velocity: Point) {
 
     fun onWayTo(target: Area): Boolean {
-        fun bad(): Boolean =
+        fun notOnWayTo(): Boolean =
             (velocity.x > 0 && point.x > target.xRange.last) ||
                     (velocity.x < 0 && point.x < target.xRange.first) ||
                     (velocity.y < 0 && point.y < target.yRange.first)
 
-        return !bad()
+        return !notOnWayTo()
     }
 
     fun next(): Position = Position(
