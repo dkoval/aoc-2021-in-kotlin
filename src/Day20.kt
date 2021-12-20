@@ -2,10 +2,10 @@ private const val MARGIN = 300
 private const val WINDOW_SIZE = 3
 
 fun main() {
-    data class Point(val row: Int, val col: Int)
+    data class Pixel(val row: Int, val col: Int)
 
     class BigImage(
-        val lightPixels: Set<Point>,
+        val lightPixels: Set<Pixel>,
         val minRow: Int,
         val minCol: Int,
         val maxRow: Int,
@@ -16,7 +16,7 @@ fun main() {
         val numRows = grid.size
         val numCols = grid[0].length
 
-        val lightPixels = mutableSetOf<Point>()
+        val lightPixels = mutableSetOf<Pixel>()
         var minRow = Int.MAX_VALUE
         var minCol = Int.MAX_VALUE
         var maxRow = Int.MIN_VALUE
@@ -24,7 +24,7 @@ fun main() {
         for (row in 0 until numRows) {
             for (col in 0 until numCols) {
                 if (grid[row][col] == '#') {
-                    lightPixels += Point(row, col)
+                    lightPixels += Pixel(row, col)
                     minRow = minOf(minRow, row)
                     maxRow = maxOf(maxRow, row)
                     minCol = minOf(minCol, col)
@@ -42,7 +42,7 @@ fun main() {
     }
 
     fun enhance(image: BigImage, algo: String): BigImage {
-        val output = mutableSetOf<Point>()
+        val output = mutableSetOf<Pixel>()
         for (row in image.minRow..image.maxRow) {
             for (col in image.minCol..image.maxCol) {
                 val bin = buildString {
@@ -50,13 +50,13 @@ fun main() {
                         for (dx in -1..1) {
                             val nextRow = row + dy
                             val nextCol = col + dx
-                            append(if (Point(nextRow, nextCol) in image.lightPixels) '1' else '0')
+                            append(if (Pixel(nextRow, nextCol) in image.lightPixels) '1' else '0')
                         }
                     }
                 }
                 val idx = bin.toInt(radix = 2)
                 if (algo[idx] == '#') {
-                    output += Point(row, col)
+                    output += Pixel(row, col)
                 }
             }
         }
