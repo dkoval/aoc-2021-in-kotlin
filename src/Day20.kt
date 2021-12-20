@@ -16,7 +16,7 @@ fun main() {
         val numRows = grid.size
         val numCols = grid[0].length
 
-        val image = mutableSetOf<Point>()
+        val lightPixels = mutableSetOf<Point>()
         var minRow = Int.MAX_VALUE
         var minCol = Int.MAX_VALUE
         var maxRow = Int.MIN_VALUE
@@ -24,7 +24,7 @@ fun main() {
         for (row in 0 until numRows) {
             for (col in 0 until numCols) {
                 if (grid[row][col] == '#') {
-                    image += Point(row, col)
+                    lightPixels += Point(row, col)
                     minRow = minOf(minRow, row)
                     maxRow = maxOf(maxRow, row)
                     minCol = minOf(minCol, col)
@@ -33,7 +33,7 @@ fun main() {
             }
         }
         return BigImage(
-            lightPixels = image,
+            lightPixels = lightPixels,
             minRow = minRow - MARGIN,
             minCol = minCol - MARGIN,
             maxRow = maxRow + MARGIN,
