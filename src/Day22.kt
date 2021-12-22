@@ -7,23 +7,24 @@ fun main() {
     data class Cuboid(val xs: IntRange, val ys: IntRange, val zs: IntRange)
     data class Instruction(val action: Action, val cuboid: Cuboid)
 
-    fun readInstructions(lines: List<String>): List<Instruction> {
-        fun range(range: String): IntRange {
-            val (min, max) = range.split("..")
-            return min.toInt()..max.toInt()
-        }
-
-        return lines.asSequence()
+    fun readInstructions(lines: List<String>): List<Instruction> =
+        lines.asSequence()
             .map { line -> line.split(" ") }
             .map { (action, ranges) ->
-                val (xs, ys, zs) = ranges.split(",").map { it.substringAfter("=") }
+                val (xs, ys, zs) = ranges.split(",").asSequence()
+                    .map { it.substringAfter("=") }
+                    .map { range ->
+                        val (first, last) = range.split("..").map { it.toInt() }
+                        IntRange(first, last)
+                    }
+                    .toList()
+
                 Instruction(
                     action = enumValueOf(action.uppercase()),
-                    cuboid = Cuboid(range(xs), range(ys), range(zs))
+                    cuboid = Cuboid(xs, ys, zs)
                 )
             }
             .toList()
-    }
 
     fun part1(input: List<String>): Int {
         val instructions = readInstructions(input)
