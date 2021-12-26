@@ -31,6 +31,14 @@ class SnailfishNumber(private val root: PairNode) {
         return SnailfishNumber(sum)
     }
 
+    fun copy(): SnailfishNumber {
+        fun copyOf(node: TreeNode): TreeNode = when (node) {
+            is IntNode -> IntNode(node.value)
+            is PairNode -> PairNode(copyOf(node.left), copyOf(node.right))
+        }
+        return SnailfishNumber(copyOf(root) as PairNode)
+    }
+
     fun magnitude(): Int {
         fun magnitude(node: TreeNode): Int = when (node) {
             is IntNode -> node.value
@@ -178,22 +186,41 @@ fun main() {
         var sum = SnailfishNumber.parse(input[0])
         for (line in input.asSequence().drop(1)) {
             sum += SnailfishNumber.parse(line)
-            println("Sum: $sum")
+            println("Sum = $sum")
         }
         return sum.magnitude()
     }
 
     fun part2(input: List<String>): Int {
         println("# Part 2")
-        TODO()
+        val nums = input.map { line -> SnailfishNumber.parse(line) }
+        var maxMagnitude = -1
+        for (i in nums.indices) {
+            for (j in nums.indices) {
+                if (i != j) {
+                    println("x     = ${nums[i]}")
+                    println("y     = ${nums[j]}")
+
+                    val sum = nums[i].copy() + nums[j].copy()
+                    println("x + y = $sum")
+
+                    val magnitude = sum.magnitude()
+                    maxMagnitude = maxOf(maxMagnitude, magnitude)
+
+                    println("Current magnitude = $magnitude, max magnitude = $maxMagnitude")
+                    println("---")
+                }
+            }
+        }
+        return maxMagnitude
     }
 
     println("*** Tests ***")
     check(part1(readInput("Day18_test")) == 4140)
-    //check(part2(readInput("Day18_test")) == ?)
+    check(part2(readInput("Day18_test")) == 3993)
 
     println("\n*** Answers ***")
     val input = readInput("Day18")
     println(part1(input)) // answer = 3216
-    //println(part2(input)) // answer = ?
+    println(part2(input)) // answer = 4643
 }
