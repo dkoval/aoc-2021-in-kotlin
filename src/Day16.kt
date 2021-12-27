@@ -4,19 +4,23 @@ object BitsPacketDecoder {
 
     data class PacketDecodeInfo(val value: BigInteger, val nextOffset: Int)
 
-    sealed class Operator {
+    sealed class Operator(val typeId: Int) {
 
         companion object {
-            fun isBinary(typeId: Int): Boolean = typeId in 5..7
+            fun of(typeId: Int): Operator = when (typeId) {
+                in 0..3 -> reduceOf(typeId)
+                in 5..7 -> binaryOf(typeId)
+                else -> error("Unsupported type ID = $typeId")
+            }
 
-            fun binaryOf(typeId: Int): BinaryOperator = when (typeId) {
+            private fun binaryOf(typeId: Int): BinaryOperator = when (typeId) {
                 5 -> BinaryOperator.GreaterThan
                 6 -> BinaryOperator.LessThan
                 7 -> BinaryOperator.Equal
                 else -> error("Unsupported type ID = $typeId")
             }
 
-            fun reduceOf(typeId: Int): ReduceOperator = when (typeId) {
+            private fun reduceOf(typeId: Int): ReduceOperator = when (typeId) {
                 0 -> ReduceOperator.Sum()
                 1 -> ReduceOperator.Product()
                 2 -> ReduceOperator.Min()
@@ -26,30 +30,30 @@ object BitsPacketDecoder {
         }
     }
 
-    sealed class BinaryOperator : Operator() {
+    sealed class BinaryOperator(typeId: Int) : Operator(typeId) {
         abstract operator fun invoke(value1: BigInteger, value2: BigInteger): BigInteger
 
-        object GreaterThan : BinaryOperator() {
+        object GreaterThan : BinaryOperator(5) {
             override fun invoke(value1: BigInteger, value2: BigInteger): BigInteger =
                 if (value1 > value2) BigInteger.ONE else BigInteger.ZERO
         }
 
-        object LessThan : BinaryOperator() {
+        object LessThan : BinaryOperator(6) {
             override fun invoke(value1: BigInteger, value2: BigInteger): BigInteger =
                 if (value1 < value2) BigInteger.ONE else BigInteger.ZERO
         }
 
-        object Equal : BinaryOperator() {
+        object Equal : BinaryOperator(7) {
             override fun invoke(value1: BigInteger, value2: BigInteger): BigInteger =
                 if (value1 == value2) BigInteger.ONE else BigInteger.ZERO
         }
     }
 
-    sealed class ReduceOperator : Operator() {
+    sealed class ReduceOperator(typeId: Int) : Operator(typeId) {
         abstract operator fun invoke(value: BigInteger)
         abstract val result: BigInteger
 
-        class Sum : ReduceOperator() {
+        class Sum : ReduceOperator(0) {
             private var sum = BigInteger.ZERO
 
             override fun invoke(value: BigInteger) {
@@ -59,7 +63,7 @@ object BitsPacketDecoder {
             override val result: BigInteger get() = sum
         }
 
-        class Product : ReduceOperator() {
+        class Product : ReduceOperator(1) {
             private var product = BigInteger.ONE
 
             override fun invoke(value: BigInteger) {
@@ -69,7 +73,7 @@ object BitsPacketDecoder {
             override val result: BigInteger get() = product
         }
 
-        class Min : ReduceOperator() {
+        class Min : ReduceOperator(2) {
             private var min: BigInteger? = null
 
             override fun invoke(value: BigInteger) {
@@ -79,7 +83,7 @@ object BitsPacketDecoder {
             override val result: BigInteger get() = checkNotNull(min)
         }
 
-        class Max : ReduceOperator() {
+        class Max : ReduceOperator(3) {
             private var max: BigInteger? = null
 
             override fun invoke(value: BigInteger) {
@@ -92,13 +96,13 @@ object BitsPacketDecoder {
 
     fun decodePart1(binary: String): Int {
         var sumOfVersions = 0
-        decode(binary) { version -> sumOfVersions += version }
+        decode(binary, 0, hook = { version -> sumOfVersions += version })
         return sumOfVersions
     }
 
-    fun decodePart2(binary: String): BigInteger = decode(binary).value
+    fun decodePart2(binary: String): BigInteger = decode(binary, 0, hook = {}).value
 
-    private fun decode(binary: String, offset: Int = 0, hook: (version: Int) -> Unit = {}): PacketDecodeInfo {
+    private fun decode(binary: String, offset: Int, hook: (version: Int) -> Unit): PacketDecodeInfo {
         val version = binary.substring(offset, offset + 3).toInt(radix = 2)
         hook(version)
 
@@ -106,7 +110,7 @@ object BitsPacketDecoder {
         return if (typedId == 4) {
             decodeLiteralPacket(binary, offset)
         } else {
-            decodeOperatorPacket(binary, offset, typedId, hook)
+            decodeOperatorPacket(Operator.of(typedId), binary, offset, hook)
         }
     }
 
@@ -127,62 +131,61 @@ object BitsPacketDecoder {
         return PacketDecodeInfo(num.toBigInteger(radix = 2), i).also { println(it) }
     }
 
-    private fun decodeOperatorPacket(binary: String, offset: Int, typedId: Int, hook: (version: Int) -> Unit): PacketDecodeInfo {
+    private fun decodeOperatorPacket(
+        operator: Operator,
+        binary: String,
+        offset: Int,
+        hook: (version: Int) -> Unit
+    ): PacketDecodeInfo {
         // skip first 6 bits forming the header
-        var i = offset + 6
-        return when (val lengthTypeId = binary[i]) {
-            '0' -> {
-                // next 15 bits are a number that represents the total length in bits of the sub-packets contained by this packet
-                var numBits = binary.substring(i + 1, i + 16).toInt(radix = 2)
-                println("Type ID = $typedId, Length type ID = 0, number of bits: $numBits")
-
-                i += 16
-                if (Operator.isBinary(typedId)) {
-                    val operator = Operator.binaryOf(typedId)
-                    val values = Array<BigInteger>(2) { BigInteger.ZERO }
-                    repeat(2) { idx ->
-                        val (value, nextOffset) = decode(binary, i, hook)
-                        values[idx] = value
-                        i = nextOffset
-                    }
-                    PacketDecodeInfo(operator(values[0], values[1]), i)
-                } else {
-                    val operator = Operator.reduceOf(typedId)
-                    while (numBits != 0) {
-                        val (value, nextOffset) = decode(binary, i, hook)
-                        operator(value)
-                        numBits -= nextOffset - i
-                        i = nextOffset
-                    }
-                    PacketDecodeInfo(operator.result, i)
-                }
-            }
-            '1' -> {
-                // next 11 bits are a number that represents the number of sub-packets immediately contained by this packet
-                val numSubPackets = binary.substring(i + 1, i + 12).toInt(radix = 2)
-                println("Type ID = $typedId, Length type ID = 1, number of sub-packets: $numSubPackets")
-
-                i += 12
-                if (Operator.isBinary(typedId)) {
-                    val operator = Operator.binaryOf(typedId)
-                    val values = Array<BigInteger>(2) { BigInteger.ZERO }
-                    repeat(2) { idx ->
-                        val (value, nextOffset) = decode(binary, i, hook)
-                        values[idx] = value
-                        i = nextOffset
-                    }
-                    PacketDecodeInfo(operator(values[0], values[1]), i)
-                } else {
-                    val operator = Operator.reduceOf(typedId)
-                    repeat(numSubPackets) {
-                        val (value, nextOffset) = decode(binary, i, hook)
-                        operator(value)
-                        i = nextOffset
-                    }
-                    PacketDecodeInfo(operator.result, i)
-                }
-            }
+        val lengthTypeId = binary[offset + 6]
+        val numBits = when (lengthTypeId) {
+            // next 15 bits are a number that represents the total length in bits of the sub-packets contained by this packet
+            '0' -> 15
+            // next 11 bits are a number that represents the number of sub-packets immediately contained by this packet
+            '1' -> 11
             else -> error("Unsupported length type ID = $lengthTypeId")
+        }
+
+        var i = offset + 7 + numBits
+        return when (operator) {
+            is BinaryOperator -> {
+                val values = Array<BigInteger>(2) { BigInteger.ZERO }
+                repeat(2) { idx ->
+                    val (value, nextOffset) = decode(binary, i, hook)
+                    values[idx] = value
+                    i = nextOffset
+                }
+                PacketDecodeInfo(operator(values[0], values[1]), i)
+            }
+            is ReduceOperator -> {
+                val lengthTypeValue = binary.substring(offset + 7, i).toInt(radix = 2)
+                when (lengthTypeId) {
+                    '0' -> {
+                        var numBitsToProcess = lengthTypeValue
+                        println("Type ID = ${operator.typeId}, Length type ID = 0, number of bits: $numBitsToProcess")
+                        while (numBitsToProcess != 0) {
+                            val (value, nextOffset) = decode(binary, i, hook)
+                            operator(value)
+                            numBitsToProcess -= nextOffset - i
+                            i = nextOffset
+                        }
+                        PacketDecodeInfo(operator.result, i)
+                    }
+                    '1' -> {
+                        var numSubPacketsToProcess = lengthTypeValue
+                        println("Type ID = ${operator.typeId}, Length type ID = 1, number of sub-packets: $numSubPacketsToProcess")
+                        while(numSubPacketsToProcess != 0) {
+                            val (value, nextOffset) = decode(binary, i, hook)
+                            operator(value)
+                            numSubPacketsToProcess--
+                            i = nextOffset
+                        }
+                        PacketDecodeInfo(operator.result, i)
+                    }
+                    else -> error("Unsupported length type ID = $lengthTypeId")
+                }
+            }
         }
     }
 }
