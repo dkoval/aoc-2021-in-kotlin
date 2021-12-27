@@ -148,6 +148,8 @@ object BitsPacketDecoder {
         }
 
         var i = offset + 7 + numBits
+        var lengthTypeValue = binary.substring(offset + 7, i).toInt(radix = 2)
+        println("Type ID = ${operator.typeId}, length type ID = $lengthTypeId, length type value = $lengthTypeValue")
         return when (operator) {
             is BinaryOperator -> {
                 val values = Array<BigInteger>(2) { BigInteger.ZERO }
@@ -159,32 +161,19 @@ object BitsPacketDecoder {
                 PacketDecodeInfo(operator(values[0], values[1]), i)
             }
             is ReduceOperator -> {
-                val lengthTypeValue = binary.substring(offset + 7, i).toInt(radix = 2)
-                when (lengthTypeId) {
-                    '0' -> {
-                        var numBitsToProcess = lengthTypeValue
-                        println("Type ID = ${operator.typeId}, Length type ID = 0, number of bits: $numBitsToProcess")
-                        while (numBitsToProcess != 0) {
-                            val (value, nextOffset) = decode(binary, i, hook)
-                            operator(value)
-                            numBitsToProcess -= nextOffset - i
-                            i = nextOffset
-                        }
-                        PacketDecodeInfo(operator.result, i)
+                while (lengthTypeValue != 0) {
+                    val (value, nextOffset) = decode(binary, i, hook)
+                    operator(value)
+                    lengthTypeValue -= when(lengthTypeId) {
+                        // decrement the number of bits to process
+                        '0' -> nextOffset - i
+                        // decrement the number of sub-packets to process
+                        '1' -> 1
+                        else -> error("Unsupported length type ID = $lengthTypeId")
                     }
-                    '1' -> {
-                        var numSubPacketsToProcess = lengthTypeValue
-                        println("Type ID = ${operator.typeId}, Length type ID = 1, number of sub-packets: $numSubPacketsToProcess")
-                        while(numSubPacketsToProcess != 0) {
-                            val (value, nextOffset) = decode(binary, i, hook)
-                            operator(value)
-                            numSubPacketsToProcess--
-                            i = nextOffset
-                        }
-                        PacketDecodeInfo(operator.result, i)
-                    }
-                    else -> error("Unsupported length type ID = $lengthTypeId")
+                    i = nextOffset
                 }
+                PacketDecodeInfo(operator.result, i)
             }
         }
     }
