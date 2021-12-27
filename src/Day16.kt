@@ -2,9 +2,9 @@ import java.math.BigInteger
 
 object BitsPacketDecoder {
 
-    data class PacketDecodeInfo(val value: BigInteger, val nextOffset: Int)
+    private data class PacketDecodeInfo(val value: BigInteger, val nextOffset: Int)
 
-    sealed class Operator(val typeId: Int) {
+    private sealed class Operator(val typeId: Int) {
 
         companion object {
             fun of(typeId: Int): Operator = when (typeId) {
@@ -30,7 +30,7 @@ object BitsPacketDecoder {
         }
     }
 
-    sealed class BinaryOperator(typeId: Int) : Operator(typeId) {
+    private sealed class BinaryOperator(typeId: Int) : Operator(typeId) {
         abstract operator fun invoke(value1: BigInteger, value2: BigInteger): BigInteger
 
         object GreaterThan : BinaryOperator(5) {
@@ -49,7 +49,7 @@ object BitsPacketDecoder {
         }
     }
 
-    sealed class ReduceOperator(typeId: Int) : Operator(typeId) {
+    private sealed class ReduceOperator(typeId: Int) : Operator(typeId) {
         abstract operator fun invoke(value: BigInteger)
         abstract val result: BigInteger
 
