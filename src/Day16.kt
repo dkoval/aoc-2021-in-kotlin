@@ -124,7 +124,7 @@ object BitsPacketDecoder {
                 // read the group prefix bit
                 done = binary[i] == '0'
                 // read next 4 bits
-                this.append(binary.substring(i + 1, i + 5))
+                append(binary.substring(i + 1, i + 5))
                 i += 5
             }
         }
@@ -180,7 +180,7 @@ object BitsPacketDecoder {
 }
 
 fun main() {
-    val hexToBin = mutableMapOf(
+    val hexToBin = mapOf(
         '0' to "0000",
         '1' to "0001",
         '2' to "0010",
