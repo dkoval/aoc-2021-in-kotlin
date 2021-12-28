@@ -164,7 +164,7 @@ object BitsPacketDecoder {
                 while (lengthTypeValue != 0) {
                     val (value, nextOffset) = decode(binary, i, hook)
                     operator(value)
-                    lengthTypeValue -= when(lengthTypeId) {
+                    lengthTypeValue -= when (lengthTypeId) {
                         // decrement the number of bits to process
                         '0' -> nextOffset - i
                         // decrement the number of sub-packets to process
@@ -233,6 +233,6 @@ fun main() {
 
     println("\n*** Answers ***")
     val input = readInput("Day16")
-    println("Part 1. Sum of packet versions = ${part1(input)}") // answer = 879
-    println("Part 2. Packet value = ${part2(input)}")           // answer = 539051801941
+    part1(input).also { println("Part 1. Sum of packet versions = $it") } // answer = 879
+    part2(input).also { println("Part 2. Packet value = $it") }           // answer = 539051801941
 }
