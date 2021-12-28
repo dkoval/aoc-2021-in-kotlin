@@ -1,10 +1,10 @@
 import kotlin.math.abs
 
-enum class Label(val destRoomIndex: Int, val moveCost: Int) {
-    A(destRoomIndex = 2, moveCost = 1),
-    B(destRoomIndex = 4, moveCost = 10),
-    C(destRoomIndex = 6, moveCost = 100),
-    D(destRoomIndex = 8, moveCost = 1000);
+enum class Label(val destRoomIndex: Int, val costOfMove: Int) {
+    A(destRoomIndex = 2, costOfMove = 1),
+    B(destRoomIndex = 4, costOfMove = 10),
+    C(destRoomIndex = 6, costOfMove = 100),
+    D(destRoomIndex = 8, costOfMove = 1000);
 
     companion object {
         val destRoomIndices: Set<Int> = values().asSequence().map { it.destRoomIndex }.toSet()
@@ -17,7 +17,22 @@ data class AmphipodState(
 ) {
     class Move(val cost: Int, val nextState: AmphipodState)
 
-    val isTarget: Boolean = rooms.entries.all { (room, amphipods) -> amphipods.all { it == room } }
+    private class MutableView(
+        val rooms: MutableMap<Label, MutableList<Label?>>,
+        val hallway: MutableList<Label?>
+    )
+
+    private constructor(view: MutableView) : this(view.rooms, view.hallway)
+
+    init {
+        // there are exactly 4 rooms of the same size
+        check(rooms.keys.size == 4)
+        val rooms = rooms.values.asSequence()
+        val size = rooms.first().size
+        check(rooms.drop(1).all { it.size == size })
+    }
+
+    val isTarget: Boolean = rooms.entries.all { (label, room) -> room.all { it == label } }
 
     fun canMoveFromHallwayIntoDestRoom(hallwayIndex: Int): Boolean {
         val amphipod = hallway[hallwayIndex] ?: return false
@@ -29,17 +44,15 @@ data class AmphipodState(
         val amphipod = hallway[hallwayIndex]!!
         val indexInRoomToMoveInto = rooms[amphipod]!!.indexOfLast { it == null }.also { check(it != -1) }
 
-        val numMoves = abs(hallwayIndex - amphipod.destRoomIndex) + indexInRoomToMoveInto + 1
-        val cost = amphipod.moveCost * numMoves
-
         // form a new state
-        val newRooms = rooms.mapValuesTo(mutableMapOf()) { (_, value) -> value.toMutableList() }
-        val newHallway = hallway.toMutableList()
-        newRooms[amphipod]!![indexInRoomToMoveInto] = amphipod
-        newHallway[hallwayIndex] = null
+        val copy = mutableCopy().apply {
+            rooms[amphipod]!![indexInRoomToMoveInto] = amphipod
+            hallway[hallwayIndex] = null
+        }
 
+        val cost = costOfMove(amphipod, hallwayIndex, amphipod.destRoomIndex, indexInRoomToMoveInto)
         println("++ Moved $amphipod from hallway index = $hallwayIndex into the destination room, cost = $cost")
-        return Move(cost, AmphipodState(newRooms, newHallway))
+        return Move(cost, AmphipodState(copy))
     }
 
     fun canMoveFromRoomAtAll(room: Label): Boolean {
@@ -51,24 +64,25 @@ data class AmphipodState(
     }
 
     fun canMoveFromRoomIntoHallway(room: Label, hallwayIndex: Int): Boolean =
-        (hallway[hallwayIndex] == null) && (hallwayIndex !in Label.destRoomIndices) && pathIsNotBlocked(room, hallwayIndex)
+        (hallway[hallwayIndex] == null) && (hallwayIndex !in Label.destRoomIndices) && pathIsNotBlocked(
+            room,
+            hallwayIndex
+        )
 
     fun moveFromRoomIntoHallway(room: Label, hallwayIndex: Int): Move {
         val sourceRoom = rooms[room]!!
         val indexInRoomToMoveFrom = sourceRoom.indexOfFirst { it != null }.also { check(it != -1) }
         val amphipod = sourceRoom[indexInRoomToMoveFrom]!!
 
-        val numMoves = abs(hallwayIndex - room.destRoomIndex) + indexInRoomToMoveFrom + 1
-        val cost = amphipod.moveCost * numMoves
-
         // form a new state
-        val newRooms = rooms.mapValuesTo(mutableMapOf()) { (_, value) -> value.toMutableList() }
-        val newHallway = hallway.toMutableList()
-        newRooms[room]!![indexInRoomToMoveFrom] = null
-        newHallway[hallwayIndex] = amphipod
+        val copy = mutableCopy().apply {
+            rooms[room]!![indexInRoomToMoveFrom] = null
+            hallway[hallwayIndex] = amphipod
+        }
 
+        val cost = costOfMove(amphipod, hallwayIndex, room.destRoomIndex, indexInRoomToMoveFrom)
         println("-- Moved $amphipod from room = $room into hallway index = $hallwayIndex, cost = $cost")
-        return Move(cost, AmphipodState(newRooms, newHallway))
+        return Move(cost, AmphipodState(copy))
     }
 
     private fun pathIsNotBlocked(room: Label, hallwayIndex: Int): Boolean {
@@ -80,6 +94,18 @@ data class AmphipodState(
         return range.all { i -> hallway[i] == null }
     }
 
+    private fun mutableCopy(): MutableView {
+        val copyOfRooms = rooms.mapValuesTo(mutableMapOf()) { (_, room) -> room.toMutableList() }
+        val copyOfHallway = hallway.toMutableList()
+        return MutableView(copyOfRooms, copyOfHallway)
+    }
+
+    private fun costOfMove(amphipod: Label, hallwayIndex: Int, destRoomIndex: Int, indexInRoom: Int): Int {
+        check(destRoomIndex in Label.destRoomIndices)
+        val numMoves = abs(hallwayIndex - destRoomIndex) + indexInRoom + 1
+        return amphipod.costOfMove * numMoves
+    }
+
     //#############
     //#...........#
     //###B#C#B#D###
@@ -88,7 +114,7 @@ data class AmphipodState(
     override fun toString(): String = buildString {
         append("#############\n")
         append("#${hallway.joinToString(separator = "", transform = { label -> label?.name ?: "." })}#\n")
-        repeat(2) { i ->
+        repeat(rooms[Label.A]!!.size) { i ->
             val line = buildString {
                 val margin = if (i == 0) "##" else "  "
                 append(margin)
