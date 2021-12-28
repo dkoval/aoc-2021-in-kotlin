@@ -169,8 +169,7 @@ fun main() {
                 if (state.canMoveFromRoomIntoHallway(room, hallwayIndex)) {
                     val move = state.moveFromRoomIntoHallway(room, hallwayIndex)
                     val futureCost = minCostToOrganize(move.nextState, dp)
-                    val currCost = if (futureCost == Int.MAX_VALUE) Int.MAX_VALUE else move.cost + futureCost
-                    minCost = minOf(minCost, currCost)
+                    minCost = minOf(minCost, if (futureCost == Int.MAX_VALUE) Int.MAX_VALUE else move.cost + futureCost)
                 }
             }
         }
