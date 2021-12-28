@@ -64,10 +64,7 @@ data class AmphipodState(
     }
 
     fun canMoveFromRoomIntoHallway(room: Label, hallwayIndex: Int): Boolean =
-        (hallway[hallwayIndex] == null) && (hallwayIndex !in Label.destRoomIndices) && pathIsNotBlocked(
-            room,
-            hallwayIndex
-        )
+        (hallway[hallwayIndex] == null) && (hallwayIndex !in Label.destRoomIndices) && pathIsNotBlocked(room, hallwayIndex)
 
     fun moveFromRoomIntoHallway(room: Label, hallwayIndex: Int): Move {
         val sourceRoom = rooms[room]!!
@@ -154,8 +151,8 @@ fun main() {
         }
 
         // if possible, move an amphipod from the hallway into the destination room
-        for ((hallwayIndex, amphipod) in state.hallway.withIndex()) {
-            if (amphipod != null && state.canMoveFromHallwayIntoDestRoom(hallwayIndex)) {
+        for (hallwayIndex in state.hallway.indices) {
+            if (state.canMoveFromHallwayIntoDestRoom(hallwayIndex)) {
                 val move = state.moveFromHallwayIntoDestRoom(hallwayIndex)
                 val futureCost = minCostToOrganize(move.nextState, dp)
                 return if (futureCost == Int.MAX_VALUE) Int.MAX_VALUE else move.cost + futureCost
