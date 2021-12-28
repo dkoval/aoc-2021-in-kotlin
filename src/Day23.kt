@@ -22,7 +22,7 @@ data class AmphipodState(
     fun canMoveFromHallwayIntoDestRoom(hallwayIndex: Int): Boolean {
         val amphipod = hallway[hallwayIndex] ?: return false
         val destRoom = rooms[amphipod]!!
-        return destRoom.all { it == null || it == amphipod } && pathWithoutObstacles(amphipod, hallwayIndex)
+        return destRoom.all { it == null || it == amphipod } && pathIsNotBlocked(amphipod, hallwayIndex)
     }
 
     fun moveFromHallwayIntoDestRoom(hallwayIndex: Int): Move {
@@ -38,7 +38,7 @@ data class AmphipodState(
         newRooms[amphipod]!![indexInRoomToMoveInto] = amphipod
         newHallway[hallwayIndex] = null
 
-        println("++ Moved $amphipod from hallway index = $hallwayIndex into the destination room in n = $numMoves moves, cost = $cost")
+        println("++ Moved $amphipod from hallway index = $hallwayIndex into the destination room, cost = $cost")
         return Move(cost, AmphipodState(newRooms, newHallway))
     }
 
@@ -51,10 +51,7 @@ data class AmphipodState(
     }
 
     fun canMoveFromRoomIntoHallway(room: Label, hallwayIndex: Int): Boolean =
-        (hallway[hallwayIndex] == null) && (hallwayIndex !in Label.destRoomIndices) && pathWithoutObstacles(
-            room,
-            hallwayIndex
-        )
+        (hallway[hallwayIndex] == null) && (hallwayIndex !in Label.destRoomIndices) && pathIsNotBlocked(room, hallwayIndex)
 
     fun moveFromRoomIntoHallway(room: Label, hallwayIndex: Int): Move {
         val sourceRoom = rooms[room]!!
@@ -70,11 +67,11 @@ data class AmphipodState(
         newRooms[room]!![indexInRoomToMoveFrom] = null
         newHallway[hallwayIndex] = amphipod
 
-        println("-- Moved $amphipod from room = $room into hallway index = $hallwayIndex in n = $numMoves moves, cost = $cost")
+        println("-- Moved $amphipod from room = $room into hallway index = $hallwayIndex, cost = $cost")
         return Move(cost, AmphipodState(newRooms, newHallway))
     }
 
-    private fun pathWithoutObstacles(room: Label, hallwayIndex: Int): Boolean {
+    private fun pathIsNotBlocked(room: Label, hallwayIndex: Int): Boolean {
         val range = when {
             room.destRoomIndex < hallwayIndex -> room.destRoomIndex until hallwayIndex
             hallwayIndex < room.destRoomIndex -> hallwayIndex + 1..room.destRoomIndex
@@ -83,29 +80,27 @@ data class AmphipodState(
         return range.all { i -> hallway[i] == null }
     }
 
-    override fun toString(): String {
-        //#############
-        //#...........#
-        //###B#C#B#D###
-        //  #A#D#C#A#
-        //  #########
-        return buildString {
-            append("#############\n")
-            append("#${hallway.joinToString(separator = "", transform = { label -> label?.name ?: "." })}#\n")
-            repeat(2) { i ->
-                val line = buildString {
-                    val margin = if (i == 0) "##" else "  "
-                    append(margin)
-                    for ((_, room) in rooms) {
-                        append("#")
-                        append(room[i] ?: '.')
-                    }
-                    append("#$margin")
+    //#############
+    //#...........#
+    //###B#C#B#D###
+    //  #A#D#C#A#
+    //  #########
+    override fun toString(): String = buildString {
+        append("#############\n")
+        append("#${hallway.joinToString(separator = "", transform = { label -> label?.name ?: "." })}#\n")
+        repeat(2) { i ->
+            val line = buildString {
+                val margin = if (i == 0) "##" else "  "
+                append(margin)
+                for ((_, room) in rooms) {
+                    append("#")
+                    append(room[i] ?: '.')
                 }
-                append("$line\n")
+                append("#$margin")
             }
-            append("  #########  \n")
+            append("$line\n")
         }
+        append("  #########  \n")
     }
 }
 
