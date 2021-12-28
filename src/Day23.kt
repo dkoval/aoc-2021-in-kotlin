@@ -20,7 +20,15 @@ data class AmphipodState(
     private class MutableView(
         val rooms: MutableMap<Label, MutableList<Label?>>,
         val hallway: MutableList<Label?>
-    )
+    ) {
+        companion object {
+            fun copyOf(state: AmphipodState): MutableView {
+                val copyOfRooms = state.rooms.mapValuesTo(mutableMapOf()) { (_, room) -> room.toMutableList() }
+                val copyOfHallway = state.hallway.toMutableList()
+                return MutableView(copyOfRooms, copyOfHallway)
+            }
+        }
+    }
 
     private constructor(view: MutableView) : this(view.rooms, view.hallway)
 
@@ -45,7 +53,7 @@ data class AmphipodState(
         val indexInRoomToMoveInto = rooms[amphipod]!!.indexOfLast { it == null }.also { check(it != -1) }
 
         // form a new state
-        val copy = mutableCopy().apply {
+        val copy = MutableView.copyOf(this).apply {
             rooms[amphipod]!![indexInRoomToMoveInto] = amphipod
             hallway[hallwayIndex] = null
         }
@@ -72,7 +80,7 @@ data class AmphipodState(
         val amphipod = sourceRoom[indexInRoomToMoveFrom]!!
 
         // form a new state
-        val copy = mutableCopy().apply {
+        val copy = MutableView.copyOf(this).apply {
             rooms[room]!![indexInRoomToMoveFrom] = null
             hallway[hallwayIndex] = amphipod
         }
@@ -89,12 +97,6 @@ data class AmphipodState(
             else -> return false
         }
         return range.all { i -> hallway[i] == null }
-    }
-
-    private fun mutableCopy(): MutableView {
-        val copyOfRooms = rooms.mapValuesTo(mutableMapOf()) { (_, room) -> room.toMutableList() }
-        val copyOfHallway = hallway.toMutableList()
-        return MutableView(copyOfRooms, copyOfHallway)
     }
 
     private fun costOfMove(amphipod: Label, hallwayIndex: Int, destRoomIndex: Int, indexInRoom: Int): Int {
