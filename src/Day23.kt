@@ -136,7 +136,7 @@ fun main() {
             }
         }
 
-        // otherwise, move amphipods from disorganized rooms to the hallway
+        // otherwise, move amphipods from disorganized rooms into the hallway
         var minCost = Int.MAX_VALUE
         for (room in Label.values()) {
             if (!state.canMoveFromRoomAtAll(room)) {
